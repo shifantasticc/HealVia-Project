@@ -12,6 +12,7 @@ import serviceAppointmentRouter from './routes/serviceAppointmentRouter.js';
 
 const app = express();
 const port = process.env.PORT || 4000;
+const origin = 'https://healvia-project.onrender.com';
 
 // IMPORTANT: ENABLE CREDENTIALS FOR CLERK COOKIE SESSION
 const allowedOrigins = [
