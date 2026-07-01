@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
-import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 import {
   CalendarDays,
   Clock,
@@ -9,28 +9,28 @@ import {
   CheckCircle,
   XCircle,
   Bell,
-} from "lucide-react";
-import { useAuth, useUser } from "@clerk/clerk-react";
+} from 'lucide-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import {
   appointmentPageStyles,
   cardStyles,
   badgeStyles,
   iconSize,
-} from "../../assets/dummyStyles";
+} from '../../assets/dummyStyles';
 
-const API_BASE = import.meta.env.VITE_API_URL || "https://healvia-project.onrender.com";
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const API = axios.create({ baseURL: API_BASE });
 
 /* -------------------- Helpers -------------------- */
 function pad(n) {
-  return String(n ?? 0).padStart(2, "0");
+  return String(n ?? 0).padStart(2, '0');
 }
 
 function parseDateTime(dateStr, timeStr) {
   const fast = new Date(`${dateStr} ${timeStr}`);
   if (!isNaN(fast)) return fast;
 
-  const parts = (dateStr || "").split(" ");
+  const parts = (dateStr || '').split(' ');
   if (parts.length === 3) {
     const [d, m, y] = parts;
     const months = {
@@ -48,13 +48,13 @@ function parseDateTime(dateStr, timeStr) {
       Dec: 11,
     };
     const month = months[m];
-    let [t, ampm] = (timeStr || "").split(" ");
-    let [hh, mm] = (t || "0:00").split(":");
+    let [t, ampm] = (timeStr || '').split(' ');
+    let [hh, mm] = (t || '0:00').split(':');
     hh = Number(hh || 0);
     mm = Number(mm || 0);
 
-    if (ampm === "PM" && hh !== 12) hh += 12;
-    if (ampm === "AM" && hh === 12) hh = 0;
+    if (ampm === 'PM' && hh !== 12) hh += 12;
+    if (ampm === 'AM' && hh === 12) hh = 0;
 
     return new Date(Number(y), month, Number(d), hh, mm);
   }
@@ -66,10 +66,10 @@ function parseDateTime(dateStr, timeStr) {
 
 function computeStatus(item) {
   const now = new Date();
-  if (!item) return "Pending";
+  if (!item) return 'Pending';
 
-  if (item.status === "Canceled") return "Canceled";
-  if (item.status === "Rescheduled") {
+  if (item.status === 'Canceled') return 'Canceled';
+  if (item.status === 'Rescheduled') {
     if (
       item.rescheduledTo &&
       item.rescheduledTo.date &&
@@ -79,30 +79,30 @@ function computeStatus(item) {
         item.rescheduledTo.date,
         item.rescheduledTo.time,
       );
-      if (now >= dt) return "Completed";
+      if (now >= dt) return 'Completed';
     }
-    return "Rescheduled";
+    return 'Rescheduled';
   }
-  if (item.status === "Completed") return "Completed";
-  if (item.status === "Confirmed") {
+  if (item.status === 'Completed') return 'Completed';
+  if (item.status === 'Confirmed') {
     const dtConfirmed = parseDateTime(item.date, item.time);
-    if (now >= dtConfirmed) return "Completed";
-    return "Confirmed";
+    if (now >= dtConfirmed) return 'Completed';
+    return 'Confirmed';
   }
-  if (item.status === "Pending") {
+  if (item.status === 'Pending') {
     const dtPending = parseDateTime(item.date, item.time);
-    if (now >= dtPending) return "Completed";
-    return "Pending";
+    if (now >= dtPending) return 'Completed';
+    return 'Pending';
   }
 
   const dt = parseDateTime(item.date, item.time);
-  if (now >= dt) return "Completed";
-  return item.confirmed ? "Confirmed" : "Pending";
+  if (now >= dt) return 'Completed';
+  return item.confirmed ? 'Confirmed' : 'Pending';
 }
 
 /* -------------------- Badges -------------------- */
 const PaymentBadge = ({ payment }) => {
-  return payment === "Online" ? (
+  return payment === 'Online' ? (
     <span className={badgeStyles.paymentBadge.online}>
       <CreditCard className={iconSize.small} /> Online
     </span>
@@ -114,28 +114,28 @@ const PaymentBadge = ({ payment }) => {
 };
 
 const StatusBadge = ({ itemStatus }) => {
-  if (itemStatus === "Completed")
+  if (itemStatus === 'Completed')
     return (
       <span className={badgeStyles.statusBadge.completed}>
         <CheckCircle className={iconSize.small} /> Completed
       </span>
     );
 
-  if (itemStatus === "Confirmed")
+  if (itemStatus === 'Confirmed')
     return (
       <span className={badgeStyles.statusBadge.confirmed}>
         <Bell className={iconSize.small} /> Confirmed
       </span>
     );
 
-  if (itemStatus === "Pending")
+  if (itemStatus === 'Pending')
     return (
       <span className={badgeStyles.statusBadge.pending}>
         <Clock className={iconSize.small} /> Pending
       </span>
     );
 
-  if (itemStatus === "Canceled")
+  if (itemStatus === 'Canceled')
     return (
       <span className={badgeStyles.statusBadge.canceled}>
         <XCircle className={iconSize.small} /> Canceled
@@ -176,19 +176,19 @@ export default function AppointmentPage() {
     try {
       token = await getToken();
       console.log(
-        "Clerk token (frontend):",
+        'Clerk token (frontend):',
         token ? `${token.slice(0, 20)}...` : null,
       );
     } catch (err) {
-      console.error("Failed to get Clerk token (frontend):", err);
+      console.error('Failed to get Clerk token (frontend):', err);
     }
 
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    console.log("Outgoing headers for /api/appointments/me:", headers);
+    console.log('Outgoing headers for /api/appointments/me:', headers);
 
     try {
-      const resp = await API.get("/api/appointments/me", { headers });
-      console.log("Response from /api/appointments/me:", resp?.data);
+      const resp = await API.get('/api/appointments/me', { headers });
+      console.log('Response from /api/appointments/me:', resp?.data);
 
       const fetched =
         resp?.data?.appointments ?? resp?.data?.data ?? resp?.data ?? [];
@@ -206,18 +206,18 @@ export default function AppointmentPage() {
       setAppointmentsRaw((p) => ({ ...p, doctors: doctors }));
     } catch (err) {
       console.error(
-        "Error calling /api/appointments/me:",
+        'Error calling /api/appointments/me:',
         err?.response?.data || err.message || err,
       );
 
       if (user?.id) {
         try {
-          console.log("Attempting debug request with ?createdBy=", user.id);
+          console.log('Attempting debug request with ?createdBy=', user.id);
           const debugResp = await API.get(
             `/api/appointments/me?createdBy=${user.id}`,
             { headers },
           );
-          console.log("Debug fallback response:", debugResp?.data);
+          console.log('Debug fallback response:', debugResp?.data);
 
           const fetched =
             debugResp?.data?.appointments ??
@@ -235,21 +235,21 @@ export default function AppointmentPage() {
           setAppointmentsRaw((p) => ({ ...p, doctors }));
         } catch (err2) {
           console.error(
-            "Debug fallback failed (doctors):",
+            'Debug fallback failed (doctors):',
             err2?.response?.data || err2.message || err2,
           );
           setError((prev) =>
             prev
-              ? prev + " | Doctors failed"
-              : "Failed to load doctor appointments. Check console.",
+              ? prev + ' | Doctors failed'
+              : 'Failed to load doctor appointments. Check console.',
           );
           setDoctorAppts([]);
         }
       } else {
         setError((prev) =>
           prev
-            ? prev + " | No user id for doctors"
-            : "Failed to load doctor appointments and no user id available for debug fallback.",
+            ? prev + ' | No user id for doctors'
+            : 'Failed to load doctor appointments and no user id available for debug fallback.',
         );
         setDoctorAppts([]);
       }
@@ -268,14 +268,14 @@ export default function AppointmentPage() {
     try {
       token = await getToken();
     } catch (err) {
-      console.error("Failed to get Clerk token (frontend): err", err);
+      console.error('Failed to get Clerk token (frontend): err', err);
     }
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    console.log("Outgoing headers for /api/service-appointments/me:", headers);
+    console.log('Outgoing headers for /api/service-appointments/me:', headers);
 
     try {
-      const resp = await API.get("/api/service-appointments/me", { headers });
-      console.log("Response from /api/service-appointments/me:", resp?.data);
+      const resp = await API.get('/api/service-appointments/me', { headers });
+      console.log('Response from /api/service-appointments/me:', resp?.data);
 
       const fetched =
         resp?.data?.appointments ?? resp?.data?.data ?? resp?.data ?? [];
@@ -286,18 +286,18 @@ export default function AppointmentPage() {
       setAppointmentsRaw((p) => ({ ...p, services: arr }));
     } catch (err) {
       console.error(
-        "Error calling /api/service-appointments/me:",
+        'Error calling /api/service-appointments/me:',
         err?.response?.data || err.message || err,
       );
 
       if (user?.id) {
         try {
-          console.log("Attempting debug request with ?createdBy=", user.id);
+          console.log('Attempting debug request with ?createdBy=', user.id);
           const debugResp = await API.get(
             `/api/service-appointments/me?createdBy=${user.id}`,
             { headers },
           );
-          console.log("Debug fallback response (services):", debugResp?.data);
+          console.log('Debug fallback response (services):', debugResp?.data);
 
           const fetched =
             debugResp?.data?.appointments ??
@@ -309,21 +309,21 @@ export default function AppointmentPage() {
           setAppointmentsRaw((p) => ({ ...p, services: arr }));
         } catch (err2) {
           console.error(
-            "Debug fallback failed (services):",
+            'Debug fallback failed (services):',
             err2?.response?.data || err2.message || err2,
           );
           setError((prev) =>
             prev
-              ? prev + " | Services failed"
-              : "Failed to load service appointments. Check console.",
+              ? prev + ' | Services failed'
+              : 'Failed to load service appointments. Check console.',
           );
           setServiceAppts([]);
         }
       } else {
         setError((prev) =>
           prev
-            ? prev + " | No user id for services"
-            : "Failed to load service appointments and no user id available for debug fallback.",
+            ? prev + ' | No user id for services'
+            : 'Failed to load service appointments and no user id available for debug fallback.',
         );
         setServiceAppts([]);
       }
@@ -354,45 +354,45 @@ export default function AppointmentPage() {
     ) {
       const hour = rt.hour ?? 0;
       const minute = rt.minute ?? 0;
-      const ampm = rt.ampm ?? "";
+      const ampm = rt.ampm ?? '';
       return { date: rt.date, time: `${hour}:${pad(minute)} ${ampm}` };
     }
     return {
-      date: rt.date || rt?.dateString || "",
+      date: rt.date || rt?.dateString || '',
       time:
         rt.time ||
         (rt.hour
-          ? `${rt.hour}:${pad(rt.minute || 0)} ${rt.ampm || ""}`
-          : rt?.timeString || ""),
+          ? `${rt.hour}:${pad(rt.minute || 0)} ${rt.ampm || ''}`
+          : rt?.timeString || ''),
     };
   }
 
   const appointmentData = useMemo(() => {
     return doctorAppts
       .map((a) => {
-        const id = a._id || a.id || String(a._id || "");
+        const id = a._id || a.id || String(a._id || '');
         const doctorObj =
-          typeof a.doctorId === "object" && a.doctorId ? a.doctorId : {};
+          typeof a.doctorId === 'object' && a.doctorId ? a.doctorId : {};
         const image =
           doctorObj.imageUrl ||
           doctorObj.image ||
           doctorObj.avatar ||
           a.doctorImage?.url ||
           a.doctorImage ||
-          "";
+          '';
         const doctorName =
           (doctorObj.name && String(doctorObj.name).trim()) ||
           (a.doctorName && String(a.doctorName).trim()) ||
           (a.doctor && String(a.doctor).trim()) ||
           (a.patientName && String(a.patientName).trim()) ||
-          "Doctor";
+          'Doctor';
 
-        const patientName = a.patientName || a.patient || "Patient";
+        const patientName = a.patientName || a.patient || 'Patient';
         const specialization =
-          doctorObj.specialization || a.specialization || a.speciality || "";
-        const experience = doctorObj.experience || a.experience || "";
-        const date = a.date || "";
-        let time = a.time || "";
+          doctorObj.specialization || a.specialization || a.speciality || '';
+        const experience = doctorObj.experience || a.experience || '';
+        const date = a.date || '';
+        let time = a.time || '';
 
         if (!time) {
           if (a.hour !== undefined && a.minute !== undefined && a.ampm) {
@@ -402,10 +402,10 @@ export default function AppointmentPage() {
           }
         }
 
-        const payment = (a.payment && a.payment.method) || "Cash";
+        const payment = (a.payment && a.payment.method) || 'Cash';
         const status =
           a.status ||
-          (a.payment && a.payment.status === "Paid" ? "Confirmed" : "Pending");
+          (a.payment && a.payment.status === 'Paid' ? 'Confirmed' : 'Pending');
         const rescheduledTo = normalizeRescheduled(
           a.rescheduledTo || {
             date: a.rescheduledDate,
@@ -433,21 +433,21 @@ export default function AppointmentPage() {
   const serviceData = useMemo(() => {
     return serviceAppts
       .map((s) => {
-        const id = s._id || s.id || String(s._id || "");
+        const id = s._id || s.id || String(s._id || '');
         const svc =
-          typeof s.serviceId === "object" && s.serviceId ? s.serviceId : {};
+          typeof s.serviceId === 'object' && s.serviceId ? s.serviceId : {};
         const image =
           svc.imageUrl ||
           svc.image ||
           svc.imageSmall ||
           s.serviceImage?.url ||
           s.serviceImage ||
-          "";
-        const name = s.serviceName || svc.name || svc.title || "Service";
-        const patientName = s.patientName || s.patient || "Patient";
+          '';
+        const name = s.serviceName || svc.name || svc.title || 'Service';
+        const patientName = s.patientName || s.patient || 'Patient';
         const price = s.fees ?? s.amount ?? s.price ?? 0;
-        const date = s.date || "";
-        let time = s.time || "";
+        const date = s.date || '';
+        let time = s.time || '';
         if (!time) {
           if (s.hour !== undefined && s.minute !== undefined && s.ampm) {
             time = `${s.hour}:${pad(s.minute)} ${s.ampm}`;
@@ -456,10 +456,10 @@ export default function AppointmentPage() {
           }
         }
 
-        const payment = (s.payment && s.payment.method) || "Cash";
+        const payment = (s.payment && s.payment.method) || 'Cash';
         const status =
           s.status ||
-          (s.payment && s.payment.status === "Paid" ? "Confirmed" : "Pending");
+          (s.payment && s.payment.status === 'Paid' ? 'Confirmed' : 'Pending');
 
         const rescheduledTo = normalizeRescheduled(s.rescheduledTo || null);
 
@@ -506,7 +506,7 @@ export default function AppointmentPage() {
             <div key={item.id} className={cardStyles.doctorCard}>
               <div className={cardStyles.doctorImageContainer}>
                 <img
-                  src={item.image || "/placeholder-doctor.png"}
+                  src={item.image || '/placeholder-doctor.png'}
                   alt={item.doctor}
                   className={cardStyles.image}
                   loading="lazy"
@@ -516,8 +516,8 @@ export default function AppointmentPage() {
               <h2 className={cardStyles.doctorName}>{item.doctor}</h2>
 
               <div className={cardStyles.specialization}>
-                {item.specialization}{" "}
-                {item.experience ? `• ${item.experience}` : ""}
+                {item.specialization}{' '}
+                {item.experience ? `• ${item.experience}` : ''}
               </div>
 
               <p className={cardStyles.dateContainer}>
@@ -533,9 +533,9 @@ export default function AppointmentPage() {
                 <StatusBadge itemStatus={item.status} />
               </div>
 
-              {item.status === "Rescheduled" && item.rescheduledTo ? (
+              {item.status === 'Rescheduled' && item.rescheduledTo ? (
                 <div className={cardStyles.rescheduledText}>
-                  Rescheduled to{" "}
+                  Rescheduled to{' '}
                   <span className={cardStyles.rescheduledSpan}>
                     {item.rescheduledTo.date} : {item.rescheduledTo.time}
                   </span>
@@ -567,7 +567,7 @@ export default function AppointmentPage() {
             <div key={srv.id} className={cardStyles.serviceCard}>
               <div className={cardStyles.serviceImageContainer}>
                 <img
-                  src={srv.image || "/placeholder-service.png"}
+                  src={srv.image || '/placeholder-service.png'}
                   alt={srv.name}
                   className={cardStyles.image}
                   loading="lazy"
@@ -591,9 +591,9 @@ export default function AppointmentPage() {
                 <StatusBadge itemStatus={srv.status} />
               </div>
 
-              {srv.status === "Rescheduled" && srv.rescheduledTo ? (
+              {srv.status === 'Rescheduled' && srv.rescheduledTo ? (
                 <div className={cardStyles.serviceRescheduledText}>
-                  Rescheduled to{" "}
+                  Rescheduled to{' '}
                   <span className={cardStyles.rescheduledSpan}>
                     {srv.rescheduledTo.date} : {srv.rescheduledTo.time}
                   </span>
