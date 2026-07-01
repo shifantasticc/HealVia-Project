@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Edit2,
   Save,
@@ -19,28 +19,28 @@ import {
   CheckCircle,
   AlertCircle,
   BadgeIndianRupee,
-} from "lucide-react";
-import { editProfilePageStyles, iconSize } from "../../assets/dummyStyles";
+} from 'lucide-react';
+import { editProfilePageStyles, iconSize } from '../../assets/dummyStyles';
 
-const STORAGE_KEY = "doctorToken_v1";
+const STORAGE_KEY = 'doctorToken_v1';
 
 /* ----------------- helpers ----------------- */
 function parse12HourTimeToMinutes(t) {
   if (!t) return 0;
-  const [time, ampm] = t.split(" ");
-  const [hh, mm] = time.split(":");
+  const [time, ampm] = t.split(' ');
+  const [hh, mm] = time.split(':');
   let h = Number(hh) % 12;
-  if ((ampm || "").toUpperCase() === "PM") h += 12;
+  if ((ampm || '').toUpperCase() === 'PM') h += 12;
   return h * 60 + Number(mm);
 }
 
 function formatTimeFromInput(time24) {
   if (!time24) return time24;
-  const [h, m] = time24.split(":");
+  const [h, m] = time24.split(':');
   let hr = Number(h);
-  const ampm = hr >= 12 ? "PM" : "AM";
+  const ampm = hr >= 12 ? 'PM' : 'AM';
   hr = hr % 12 || 12;
-  return `${String(hr).padStart(2, "0")}:${m} ${ampm}`;
+  return `${String(hr).padStart(2, '0')}:${m} ${ampm}`;
 }
 
 function dedupeAndSortSchedule(schedule = {}) {
@@ -59,11 +59,11 @@ function dedupeAndSortSchedule(schedule = {}) {
 export default function EditProfilePage({ apiBase }) {
   const { id } = useParams(); // expects route like /doctor-edit/:id
   const navigate = useNavigate();
-  const API_BASE = "https://healvia-project.onrender.com/api/doctors";
+  const API_BASE = 'https://healvia.onrender.com/api/doctors';
 
   const [doc, setDoc] = useState(null);
   const [editing, setEditing] = useState(false);
-  const [imagePreview, setImagePreview] = useState("");
+  const [imagePreview, setImagePreview] = useState('');
   const [localImageFile, setLocalImageFile] = useState(null);
   const [saveMessage, setSaveMessage] = useState(null);
   const [toasts, setToasts] = useState([]);
@@ -78,7 +78,7 @@ export default function EditProfilePage({ apiBase }) {
         setLoading(true);
         const res = await fetch(`${API_BASE}/${id}`);
         const json = await res.json();
-        if (!res.ok) throw new Error(json?.message || "Failed to fetch doctor");
+        if (!res.ok) throw new Error(json?.message || 'Failed to fetch doctor');
         const d = json.data || json || {};
         // Normalize fields (backend may return different keys)
         d.schedule = dedupeAndSortSchedule(d.schedule || {});
@@ -86,11 +86,11 @@ export default function EditProfilePage({ apiBase }) {
           d.imageUrl || d.image || d.imageUrl === null ? d.imageUrl : d.image;
         if (!cancelled) {
           setDoc(d);
-          setImagePreview(d.imageUrl || "");
+          setImagePreview(d.imageUrl || '');
         }
       } catch (err) {
-        console.error("fetchDoctor error:", err);
-        addToast("Unable to load profile", "error");
+        console.error('fetchDoctor error:', err);
+        addToast('Unable to load profile', 'error');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -99,13 +99,13 @@ export default function EditProfilePage({ apiBase }) {
     if (id) fetchDoctor();
     return () => {
       cancelled = true;
-      if (imagePreview && imagePreview.startsWith("blob:"))
+      if (imagePreview && imagePreview.startsWith('blob:'))
         URL.revokeObjectURL(imagePreview);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const addToast = (text, type = "success") => {
+  const addToast = (text, type = 'success') => {
     const idt = Date.now() + Math.random();
     const t = { id: idt, text, type };
     setToasts((prev) => [t, ...prev.slice(0, 2)]);
@@ -119,11 +119,11 @@ export default function EditProfilePage({ apiBase }) {
   const addDate = (dateStr) => {
     if (!dateStr) return;
     if (doc.schedule[dateStr]) {
-      addToast("Date already exists", "error");
+      addToast('Date already exists', 'error');
       return;
     }
     setDoc((d) => ({ ...d, schedule: { ...d.schedule, [dateStr]: [] } }));
-    addToast("Date added successfully", "success");
+    addToast('Date added successfully', 'success');
   };
 
   const addSlot = (dateStr, time) => {
@@ -132,7 +132,7 @@ export default function EditProfilePage({ apiBase }) {
     setDoc((d) => {
       const existing = d.schedule[dateStr] || [];
       if (existing.includes(formatted)) {
-        addToast(`${formatted} already exists for ${dateStr}`, "error");
+        addToast(`${formatted} already exists for ${dateStr}`, 'error');
         return d;
       }
       const nextArr = [...existing, formatted];
@@ -141,7 +141,7 @@ export default function EditProfilePage({ apiBase }) {
       );
       return { ...d, schedule: { ...d.schedule, [dateStr]: nextArr } };
     });
-    addToast(`Time slot ${formatted} added`, "success");
+    addToast(`Time slot ${formatted} added`, 'success');
   };
 
   const removeSlot = (dateStr, slot) => {
@@ -149,7 +149,7 @@ export default function EditProfilePage({ apiBase }) {
       const next = (d.schedule[dateStr] || []).filter((s) => s !== slot);
       return { ...d, schedule: { ...d.schedule, [dateStr]: next } };
     });
-    addToast(`Removed ${slot} from ${dateStr}`, "info");
+    addToast(`Removed ${slot} from ${dateStr}`, 'info');
   };
 
   const removeDate = (dateStr) => {
@@ -158,7 +158,7 @@ export default function EditProfilePage({ apiBase }) {
       delete clone[dateStr];
       return { ...d, schedule: clone };
     });
-    addToast(`Date ${dateStr} removed`, "info");
+    addToast(`Date ${dateStr} removed`, 'info');
   };
 
   /* ---------- image handling ---------- */
@@ -166,22 +166,22 @@ export default function EditProfilePage({ apiBase }) {
     if (!editing) return;
     const file = e.target.files?.[0];
     if (!file) return;
-    if (imagePreview && imagePreview.startsWith("blob:"))
+    if (imagePreview && imagePreview.startsWith('blob:'))
       URL.revokeObjectURL(imagePreview);
     const url = URL.createObjectURL(file);
     setImagePreview(url);
     setLocalImageFile(file);
     setDoc((d) => ({ ...d, imageUrl: url }));
-    addToast("Profile image updated locally", "success");
+    addToast('Profile image updated locally', 'success');
   };
 
   const toggleAvailability = () => {
     setDoc((d) => {
-      const current = d.availability === "Available" || d.available === true;
-      const nextVal = current ? "Unavailable" : "Available";
+      const current = d.availability === 'Available' || d.available === true;
+      const nextVal = current ? 'Unavailable' : 'Available';
       return { ...d, availability: nextVal, available: !current };
     });
-    addToast("Availability toggled", "info");
+    addToast('Availability toggled', 'info');
   };
 
   const handleReset = async () => {
@@ -189,17 +189,17 @@ export default function EditProfilePage({ apiBase }) {
       setLoading(true);
       const res = await fetch(`${API_BASE}/${id}`);
       const json = await res.json();
-      if (!res.ok) throw new Error(json?.message || "Failed to fetch");
+      if (!res.ok) throw new Error(json?.message || 'Failed to fetch');
       const d = json.data || json || {};
       d.schedule = dedupeAndSortSchedule(d.schedule || {});
       setDoc(d);
-      setImagePreview(d.imageUrl || "");
+      setImagePreview(d.imageUrl || '');
       setLocalImageFile(null);
       setEditing(false);
-      addToast("Reset to server profile", "info");
+      addToast('Reset to server profile', 'info');
     } catch (err) {
-      console.error("Reset error:", err);
-      addToast("Reset failed", "error");
+      console.error('Reset error:', err);
+      addToast('Reset failed', 'error');
     } finally {
       setLoading(false);
     }
@@ -208,26 +208,26 @@ export default function EditProfilePage({ apiBase }) {
   /* ---------- save to backend ---------- */
   const handleSave = async () => {
     if (!doc) return;
-    setSaveMessage({ type: "saving", text: "Saving profile..." });
-    addToast("Saving profile...", "info");
+    setSaveMessage({ type: 'saving', text: 'Saving profile...' });
+    addToast('Saving profile...', 'info');
 
     try {
       const form = new FormData();
 
       // append updatable fields
       const updatable = [
-        "name",
-        "specialization",
-        "experience",
-        "qualifications",
-        "location",
-        "about",
-        "fee",
-        "availability",
-        "success",
-        "patients",
-        "rating",
-        "email",
+        'name',
+        'specialization',
+        'experience',
+        'qualifications',
+        'location',
+        'about',
+        'fee',
+        'availability',
+        'success',
+        'patients',
+        'rating',
+        'email',
       ];
       updatable.forEach((k) => {
         if (doc[k] !== undefined && doc[k] !== null) {
@@ -235,26 +235,26 @@ export default function EditProfilePage({ apiBase }) {
         }
       });
 
-      form.append("schedule", JSON.stringify(doc.schedule || {}));
+      form.append('schedule', JSON.stringify(doc.schedule || {}));
 
       if (localImageFile) {
-        form.append("image", localImageFile);
-      } else if (doc.imageUrl && !doc.imageUrl.startsWith("blob:")) {
-        form.append("imageUrl", doc.imageUrl);
+        form.append('image', localImageFile);
+      } else if (doc.imageUrl && !doc.imageUrl.startsWith('blob:')) {
+        form.append('imageUrl', doc.imageUrl);
       }
 
       const token = localStorage.getItem(STORAGE_KEY);
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       const res = await fetch(`${API_BASE}/${id}`, {
-        method: "PUT",
+        method: 'PUT',
         headers,
         body: form,
       });
 
       const json = await res.json();
       if (!res.ok) {
-        throw new Error(json?.message || "Failed to save");
+        throw new Error(json?.message || 'Failed to save');
       }
 
       const updated = json.data || json;
@@ -263,13 +263,13 @@ export default function EditProfilePage({ apiBase }) {
       setLocalImageFile(null);
       setImagePreview(updated.imageUrl || imagePreview);
       setEditing(false);
-      setSaveMessage({ type: "success", text: "Profile saved successfully!" });
-      addToast("Profile saved successfully!", "success");
+      setSaveMessage({ type: 'success', text: 'Profile saved successfully!' });
+      addToast('Profile saved successfully!', 'success');
       setTimeout(() => setSaveMessage(null), 1500);
     } catch (err) {
-      console.error("handleSave error:", err);
-      setSaveMessage({ type: "error", text: "Save failed" });
-      addToast(err.message || "Save failed", "error");
+      console.error('handleSave error:', err);
+      setSaveMessage({ type: 'error', text: 'Save failed' });
+      addToast(err.message || 'Save failed', 'error');
     }
   };
 
@@ -278,67 +278,67 @@ export default function EditProfilePage({ apiBase }) {
     ? [
         {
           icon: User,
-          label: "Name",
-          value: doc.name || "",
+          label: 'Name',
+          value: doc.name || '',
           onChange: (v) => setDoc((d) => ({ ...d, name: v })),
         },
         {
           icon: Briefcase,
-          label: "Specialization",
-          value: doc.specialization || "",
+          label: 'Specialization',
+          value: doc.specialization || '',
           onChange: (v) => setDoc((d) => ({ ...d, specialization: v })),
         },
         {
           icon: Clock,
-          label: "Experience",
-          value: doc.experience || "",
+          label: 'Experience',
+          value: doc.experience || '',
           onChange: (v) => setDoc((d) => ({ ...d, experience: v })),
         },
         {
           icon: GraduationCap,
-          label: "Qualifications",
-          value: doc.qualifications || "",
+          label: 'Qualifications',
+          value: doc.qualifications || '',
           onChange: (v) => setDoc((d) => ({ ...d, qualifications: v })),
         },
         {
           icon: MapPin,
-          label: "Location",
-          value: doc.location || "",
+          label: 'Location',
+          value: doc.location || '',
           onChange: (v) => setDoc((d) => ({ ...d, location: v })),
         },
         // NEW: Patients
         {
           icon: User,
-          label: "Patients",
-          value: doc.patients ?? "",
+          label: 'Patients',
+          value: doc.patients ?? '',
           onChange: (v) =>
-            setDoc((d) => ({ ...d, patients: v === "" ? "" : Number(v) || 0 })),
+            setDoc((d) => ({ ...d, patients: v === '' ? '' : Number(v) || 0 })),
         },
         // NEW: Success (percent or count depending on your model)
         {
           icon: CheckCircle,
-          label: "Success",
-          value: doc.success ?? "",
+          label: 'Success',
+          value: doc.success ?? '',
           onChange: (v) =>
-            setDoc((d) => ({ ...d, success: v === "" ? "" : Number(v) || 0 })),
+            setDoc((d) => ({ ...d, success: v === '' ? '' : Number(v) || 0 })),
         },
         // NEW: Rating (0.0 - 5.0)
         {
           icon: Star,
-          label: "Rating (out of 5)",
-          value: doc.rating ?? "",
+          label: 'Rating (out of 5)',
+          value: doc.rating ?? '',
           onChange: (v) =>
             setDoc((d) => ({
               ...d,
-              rating: v === "" ? "" : parseFloat(v) || 0,
+              rating: v === '' ? '' : parseFloat(v) || 0,
             })),
         },
         {
           icon: DollarSign,
-          label: "Fee (INR)",
-          value: doc.fee ?? "",
+          label: 'Fee (INR)',
+          value: doc.fee ?? '',
           onChange: (v) =>
-            setDoc((d) => ({ ...d, fee: v === "" ? "" : Number(v) || 0 })),
+            setDoc((d) => ({ ...d, fee: v === '' ? '' : Number(v) || 0 })),
         },
       ]
     : [];
@@ -363,7 +363,7 @@ export default function EditProfilePage({ apiBase }) {
     );
   }
 
-  const isAvailable = doc.availability === "Available" || doc.available;
+  const isAvailable = doc.availability === 'Available' || doc.available;
 
   return (
     <div className={styles.pageContainer}>
@@ -374,14 +374,14 @@ export default function EditProfilePage({ apiBase }) {
             <div
               key={t.id}
               className={`${styles.toastBase} ${
-                t.type === "error"
+                t.type === 'error'
                   ? styles.toastError
-                  : t.type === "info"
+                  : t.type === 'info'
                     ? styles.toastInfo
                     : styles.toastSuccess
               }`}
             >
-              {t.type === "error" ? (
+              {t.type === 'error' ? (
                 <AlertCircle
                   className={`${styles.toastIcon} ${styles.toastErrorIcon}`}
                 />
@@ -400,7 +400,7 @@ export default function EditProfilePage({ apiBase }) {
             <div className={styles.imageContainer}>
               <div className={styles.imageWrapper}>
                 <img
-                  src={imagePreview || ""}
+                  src={imagePreview || ''}
                   alt={doc.name}
                   className={styles.profileImage}
                 />
@@ -445,13 +445,13 @@ export default function EditProfilePage({ apiBase }) {
                             type="number"
                             min={0}
                             step={1}
-                            value={doc.patients ?? ""}
+                            value={doc.patients ?? ''}
                             onChange={(e) =>
                               setDoc((d) => ({
                                 ...d,
                                 patients:
-                                  e.target.value === ""
-                                    ? ""
+                                  e.target.value === ''
+                                    ? ''
                                     : Number(e.target.value),
                               }))
                             }
@@ -476,13 +476,13 @@ export default function EditProfilePage({ apiBase }) {
                           type="number"
                           min={0}
                           step={1}
-                          value={doc.success ?? ""}
+                          value={doc.success ?? ''}
                           onChange={(e) =>
                             setDoc((d) => ({
                               ...d,
                               success:
-                                e.target.value === ""
-                                  ? ""
+                                e.target.value === ''
+                                  ? ''
                                   : Number(e.target.value),
                             }))
                           }
@@ -494,12 +494,12 @@ export default function EditProfilePage({ apiBase }) {
 
                   {/* Rating */}
                   <div className={styles.ratingStatItem}>
-                    <Star className={styles.statAmberIcon("star")} />
+                    <Star className={styles.statAmberIcon('star')} />
                     <div className="flex flex-col">
                       <div className={styles.statAmberLabel}>Rating</div>
                       {!editing ? (
                         <div className={styles.statAmberValue}>
-                          {typeof doc.rating === "number"
+                          {typeof doc.rating === 'number'
                             ? `${doc.rating}/5`
                             : doc.rating}
                         </div>
@@ -510,13 +510,13 @@ export default function EditProfilePage({ apiBase }) {
                             min={0}
                             max={5}
                             step={0.1}
-                            value={doc.rating ?? ""}
+                            value={doc.rating ?? ''}
                             onChange={(e) =>
                               setDoc((d) => ({
                                 ...d,
                                 rating:
-                                  e.target.value === ""
-                                    ? ""
+                                  e.target.value === ''
+                                    ? ''
                                     : parseFloat(e.target.value),
                               }))
                             }
@@ -538,13 +538,13 @@ export default function EditProfilePage({ apiBase }) {
                         type="number"
                         min={0}
                         step={1}
-                        value={doc.fee ?? ""}
+                        value={doc.fee ?? ''}
                         onChange={(e) =>
                           setDoc((d) => ({
                             ...d,
                             fee:
-                              e.target.value === ""
-                                ? ""
+                              e.target.value === ''
+                                ? ''
                                 : Number(e.target.value),
                           }))
                         }
@@ -565,7 +565,7 @@ export default function EditProfilePage({ apiBase }) {
                     <div className={styles.toggleThumb(isAvailable)}></div>
                   </div>
                   <span className={styles.toggleText(isAvailable)}>
-                    {isAvailable ? "Available" : "Unavailable"}
+                    {isAvailable ? 'Available' : 'Unavailable'}
                   </span>
                 </button>
 
@@ -576,7 +576,7 @@ export default function EditProfilePage({ apiBase }) {
                   <div className={styles.editButtonContent}>
                     <Edit2 className="w-4 h-4" />
                     <span className="font-medium">
-                      {editing ? "Cancel" : "Edit Profile"}
+                      {editing ? 'Cancel' : 'Edit Profile'}
                     </span>
                   </div>
                 </button>
@@ -626,7 +626,7 @@ export default function EditProfilePage({ apiBase }) {
               <div className="relative">
                 <textarea
                   rows={3}
-                  value={doc.about || ""}
+                  value={doc.about || ''}
                   onChange={(e) =>
                     editing && setDoc((d) => ({ ...d, about: e.target.value }))
                   }
@@ -636,7 +636,7 @@ export default function EditProfilePage({ apiBase }) {
                   placeholder="Tell patients about your expertise, approach, and philosophy..."
                 />
                 <div className={styles.aboutCharCount}>
-                  {(doc.about || "").length}/500
+                  {(doc.about || '').length}/500
                 </div>
               </div>
             </div>
@@ -684,10 +684,10 @@ export default function EditProfilePage({ apiBase }) {
                             </div>
                             <div>
                               <div className={styles.dateTitle}>
-                                {new Date(date).toLocaleDateString("en-US", {
-                                  weekday: "short",
-                                  month: "short",
-                                  day: "numeric",
+                                {new Date(date).toLocaleDateString('en-US', {
+                                  weekday: 'short',
+                                  month: 'short',
+                                  day: 'numeric',
                                 })}
                               </div>
                               <div className={styles.dateSubtitle}>{date}</div>
@@ -695,7 +695,7 @@ export default function EditProfilePage({ apiBase }) {
                           </div>
                           <div className="flex items-center gap-2">
                             <span className={styles.dateSlotCount}>
-                              {slots.length} slot{slots.length !== 1 ? "s" : ""}
+                              {slots.length} slot{slots.length !== 1 ? 's' : ''}
                             </span>
                             <button
                               onClick={() => editing && removeDate(date)}
@@ -735,15 +735,15 @@ export default function EditProfilePage({ apiBase }) {
                                   type="time"
                                   className={styles.addSlotInput}
                                   onKeyDown={(e) => {
-                                    if (e.key === "Enter" && e.target.value) {
+                                    if (e.key === 'Enter' && e.target.value) {
                                       addSlot(date, e.target.value);
-                                      e.target.value = "";
+                                      e.target.value = '';
                                     }
                                   }}
                                   onBlur={(e) => {
                                     if (e.target.value) {
                                       addSlot(date, e.target.value);
-                                      e.target.value = "";
+                                      e.target.value = '';
                                     }
                                   }}
                                 />
@@ -753,7 +753,7 @@ export default function EditProfilePage({ apiBase }) {
                                       e.currentTarget.previousElementSibling;
                                     if (input.value) {
                                       addSlot(date, input.value);
-                                      input.value = "";
+                                      input.value = '';
                                     }
                                   }}
                                   className={styles.addSlotButton}
@@ -774,8 +774,8 @@ export default function EditProfilePage({ apiBase }) {
             <div className={styles.actionsSection}>
               <div className={styles.actionsText}>
                 {editing
-                  ? "Make changes and save your profile"
-                  : "View and edit your profile"}
+                  ? 'Make changes and save your profile'
+                  : 'View and edit your profile'}
               </div>
 
               <div className={styles.actionsButtons}>
@@ -785,10 +785,10 @@ export default function EditProfilePage({ apiBase }) {
 
                 <button
                   onClick={handleSave}
-                  disabled={!editing || saveMessage?.type === "saving"}
+                  disabled={!editing || saveMessage?.type === 'saving'}
                   className={styles.saveButton}
                 >
-                  {saveMessage?.type === "saving" ? (
+                  {saveMessage?.type === 'saving' ? (
                     <div className={styles.saveButtonContent}>
                       <div className={styles.saveSpinner}></div>
                       <span>Saving...</span>
@@ -817,11 +817,11 @@ export default function EditProfilePage({ apiBase }) {
 /* ---------- Helper components ---------- */
 function AddDate({ onAdd }) {
   const styles = editProfilePageStyles;
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
   const handleAdd = () => {
     if (value) {
       onAdd(value);
-      setValue("");
+      setValue('');
     }
   };
   return (
@@ -830,9 +830,9 @@ function AddDate({ onAdd }) {
         type="date"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        min={new Date().toISOString().split("T")[0]}
+        min={new Date().toISOString().split('T')[0]}
         className={styles.addDateInput}
-        onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+        onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
       />
       <button onClick={handleAdd} className={styles.addDateButton}>
         <Plus className={styles.addDateIcon} />

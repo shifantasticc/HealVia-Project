@@ -1,6 +1,5 @@
 // src/data/appointmentsData.js
 // IDTS THIS FILE IS IMP!!!
-
 // ---------------------
 // DOCTOR APPOINTMENTS
 // ---------------------

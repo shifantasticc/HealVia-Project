@@ -3,7 +3,7 @@ import { Search, X, Phone, Calendar } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { listPageStyles } from "../../assets/dummyStyles";
 
-const API_BASE = "https://healvia-project.onrender.com";
+const API_BASE = "https://healvia.onrender.com";
 
 /* -------------------------
    Utils

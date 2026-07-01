@@ -8,7 +8,7 @@ import { loginPageStyles, toastStyles } from "../../assets/dummyStyles";
 const STORAGE_KEY = "doctorToken_v1";
 
 export default function LoginPage({ apiBase }) {
-  const API_BASE = apiBase || "https://healvia-project.onrender.com";
+  const API_BASE = apiBase || "https://healvia.onrender.com";
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
@@ -73,7 +73,7 @@ export default function LoginPage({ apiBase }) {
         style: toastStyles.successToast,
       });
 
-      // ✅ Navigate to dynamic route
+      //  Navigate to dynamic route
       setTimeout(() => {
         navigate(`/doctor-admin/${doctorId}`);
       }, 700);

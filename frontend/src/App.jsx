@@ -93,7 +93,7 @@ const App = () => {
           <Route path="/emergency" element={<EmergencyPage />} />
           <Route path="/doctor-admin/login" element={<Login />} />
 
-          {/* ✅ STRIPE PAYMENT ROUTES */}
+          {/* STRIPE PAYMENT ROUTES */}
           <Route path="/appointment/success" element={<VerifyPaymentPage />} />
           <Route path="/appointment/cancel" element={<VerifyPaymentPage />} />
 
