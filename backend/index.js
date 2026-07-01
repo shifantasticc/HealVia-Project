@@ -14,10 +14,10 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 // IMPORTANT: ENABLE CREDENTIALS FOR CLERK COOKIE SESSION
-const allowedOrigins = [
-  'https://heal-via.vercel.app',
-  'https://heal-via-admin.vercel.app',
-];
+// const allowedOrigins = [
+//   'https://heal-via.vercel.app',
+//   'https://heal-via-admin.vercel.app',
+// ];
 
 app.use(
   cors({
