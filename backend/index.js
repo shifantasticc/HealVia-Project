@@ -12,12 +12,11 @@ import serviceAppointmentRouter from './routes/serviceAppointmentRouter.js';
 
 const app = express();
 const port = process.env.PORT || 4000;
-const origin = 'https://healvia-project.onrender.com';
 
 // IMPORTANT: ENABLE CREDENTIALS FOR CLERK COOKIE SESSION
 const allowedOrigins = [
-  'https://heal-via.vercel.app/', // user frontend
-  'https://heal-via-admin.vercel.app/', // admin dashboard
+  'https://heal-via.vercel.app',
+  'https://heal-via-admin.vercel.app',
 ];
 
 app.use(
@@ -32,7 +31,7 @@ app.use(
 
       return callback(new Error('Not allowed by CORS'));
     },
-    credentials: true, // ✅ REQUIRED for cookies / Clerk
+    credentials: true, // REQUIRED for cookies / Clerk
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
