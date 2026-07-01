@@ -16,6 +16,7 @@ const port = process.env.PORT || 4000;
 // IMPORTANT: ENABLE CREDENTIALS FOR CLERK COOKIE SESSION
 const allowedOrigins = [
   'https://healviaa.netlify.app',
+  'https://healvia-admin.netlify.app',
   'http://localhost:5173',
 ];
 
