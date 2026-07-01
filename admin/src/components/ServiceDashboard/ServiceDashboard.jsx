@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { serviceDashboardStyles } from "../../assets/dummyStyles";
 
-const API_BASE = "https://healvia-project.onrender.com";
+const API_BASE = "https://healvia.onrender.com";
 
 /* -----------------------
    Normalizer - robust to multiple backend shapes

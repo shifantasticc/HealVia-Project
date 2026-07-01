@@ -15,7 +15,7 @@ import { addServiceStyles } from "../../assets/dummyStyles";
 
 
 export default function AddService({ apiBase, serviceId }) {
-  const API_BASE = apiBase || "https://healvia-project.onrender.com";
+  const API_BASE = apiBase || "https://healvia.onrender.com";
 
   const fileRef = useRef(null);
   const [imagePreview, setImagePreview] = useState(null); // either objectURL or remote imageUrl

@@ -6,7 +6,7 @@ import { pageStyles, statusClasses, keyframesStyles } from "../../assets/dummySt
 /* ----------------------
   Config
 ------------------------ */
-const API_BASE = "https://healvia-project.onrender.com";
+const API_BASE = "https://healvia.onrender.com";
 
 /* ----------------------
   Helpers

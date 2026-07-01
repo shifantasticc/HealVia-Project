@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { serviceAppointmentsStyles } from "../../assets/dummyStyles";
 
-const API_BASE = "https://healvia-project.onrender.com";
+const API_BASE = "https://healvia.onrender.com";
 
 function formatTwo(n) {
   return String(n).padStart(2, "0");
